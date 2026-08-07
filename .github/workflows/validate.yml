@@ -1,0 +1,44 @@
+# Validates every entry against the contract in schema/ on each pull request.
+#
+# This is the reason the contract lives in this repository rather than in the
+# site repository: a contributor gets a clear ✗ here, on their own pull
+# request, naming the file and the fix. Without it, a mistake would only
+# surface in a build they cannot run, in a repository they cannot see.
+#
+# The tests run before the validation on purpose. A validator that quietly
+# passes everything looks exactly like one that works, so the check that the
+# check works comes first.
+name: Validate entries
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    # Pinned rather than ubuntu-latest, so the same commit keeps behaving the
+    # same way.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          # Node 22 is Active LTS. Node 20 reached end of life on 2026-04-30.
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Test the validator
+        run: npm test
+
+      - name: Typecheck the contract
+        run: npm run typecheck
+
+      - name: Validate every entry
+        run: npm run validate

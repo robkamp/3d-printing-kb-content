@@ -1,0 +1,39 @@
+This repository contains two kinds of material under two different licences.
+A repository with mixed material and a single LICENSE file is ambiguous
+exactly when it matters, so both are stated explicitly.
+
+--------------------------------------------------------------------------
+CONTENT — Creative Commons Attribution-ShareAlike 4.0 International
+--------------------------------------------------------------------------
+
+Applies to everything under `content/`: the knowledge base entries and their
+images and diagrams.
+
+You may share and adapt this material, including commercially, provided you
+give appropriate credit and license your derivatives under the same terms.
+
+Full text: LICENSE-CONTENT.txt
+Summary:   https://creativecommons.org/licenses/by-sa/4.0/
+
+--------------------------------------------------------------------------
+CODE — MIT
+--------------------------------------------------------------------------
+
+Applies to everything else: `schema/`, `scripts/`, the workflow definitions
+and the project configuration.
+
+Full text: LICENSE-CODE.txt
+
+--------------------------------------------------------------------------
+CONTRIBUTIONS
+--------------------------------------------------------------------------
+
+Inbound equals outbound. By opening a pull request you offer your
+contribution under the licence that applies to the files you changed —
+CC BY-SA 4.0 for content, MIT for code. There is no separate contributor
+licence agreement to sign.
+
+This is stated rather than left implicit because "no licence yet" stops
+being a neutral position the moment someone else's work is merged:
+without it there is no right to redistribute their contribution, and
+adding a licence afterwards needs every contributor's agreement.
