@@ -156,6 +156,68 @@ export function checkNoDuplicateSteps(
   return problems;
 }
 
+/**
+ * Every `/kb/…` link an entry makes, with the line it is on.
+ *
+ * Matches both Markdown links and bare occurrences, because either one becomes
+ * a real link on the page once the Markdown is compiled.
+ */
+export function internalLinksIn(
+  raw: string,
+): Array<{ target: string; line: number }> {
+  const links = [];
+  const lines = raw.split("\n");
+
+  for (const [index, line] of lines.entries()) {
+    // The lookbehind is load-bearing. Without it this also matches the tail of
+    // an external URL containing the same path, so a link to
+    // `https://help.prusa3d.com/kb/materials/x` would be reported as a broken
+    // internal link — wrong, and impossible for a contributor to act on. An
+    // internal link only ever opens a Markdown target `](…)` or stands alone.
+    for (const match of line.matchAll(
+      /(?<=^|[\s(])\/kb\/[a-z0-9-]+\/[a-z0-9-]+/g,
+    )) {
+      links.push({ target: match[0], line: index + 1 });
+    }
+  }
+
+  return links;
+}
+
+/**
+ * Internal links that point at an entry which does not exist.
+ *
+ * Cross-entry, and worth failing a pull request over rather than leaving to
+ * the monthly sweep: a broken `/kb/…` link is a 404 the moment it publishes,
+ * it costs nothing to check, and no network is involved. External links are
+ * the opposite on all three counts, which is why they live in the sweep.
+ *
+ * The entries cross-reference each other heavily — the calibration sequence is
+ * held together almost entirely by these links — so a renamed file silently
+ * breaking half of them is a real risk rather than a theoretical one.
+ */
+export function checkInternalLinks(files: EntryFile[]): Problem[] {
+  const existing = new Set(
+    files.map(
+      (file) =>
+        // "content/materials/foo.md" is reachable at "/kb/materials/foo".
+        `/kb/${file.path.replace(/^content\//, "").replace(/\.md$/, "")}`,
+    ),
+  );
+
+  return files.flatMap((file) =>
+    internalLinksIn(file.raw)
+      .filter((link) => !existing.has(link.target))
+      .map((link) => ({
+        file: file.path,
+        message:
+          `line ${link.line} links to ${link.target}, which is not an entry. ` +
+          `Check the spelling, or the category in the path — the link has to ` +
+          `match the file's folder and name.`,
+      })),
+  );
+}
+
 /** Frontmatter needed for the cross-entry checks, when it parsed cleanly. */
 function seriesOf(
   file: EntryFile,
@@ -212,13 +274,14 @@ export function checkAll(files: EntryFile[], allPaths: string[]): Problem[] {
   return [
     ...checkNoMdx(allPaths),
     ...files.flatMap((file) => checkEntry(file)),
-    // Cross-entry, so it cannot live in checkEntry: a duplicate step is only
-    // visible when the whole set is in view.
+    // Cross-entry, so they cannot live in checkEntry: a duplicate step and a
+    // dangling link are both only visible when the whole set is in view.
     ...checkNoDuplicateSteps(
       files
         .map((file) => seriesOf(file))
         .filter((entry) => entry !== undefined),
     ),
+    ...checkInternalLinks(files),
   ];
 }
 

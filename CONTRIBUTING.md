@@ -32,6 +32,75 @@ Not finished? Set `draft: true`. It stays here, visible to others, but no page
 is generated. Unfinished-but-visible beats hidden-until-perfect — someone else
 may know the bit you are missing.
 
+## The optional settings, and what they are for
+
+Everything below is optional. The check tells you if you get one wrong.
+
+```yaml
+updated: "2026-08-09" # when you revise an entry
+tags: [filament, drying]
+difficulty: beginner | intermediate | advanced
+draft: false
+
+reviewBy: "2027-08-08" # when someone should re-read the sources
+
+series: filament-calibration # if this entry is a step in a procedure
+step: 4 # where it falls, counting from 1
+
+videos: # someone doing the thing
+  - label: Flow rate calibration, start to finish
+    url: https://www.youtube.com/watch?v=…
+    checked: "2026-08-08"
+
+sources: # where your facts came from
+  - label: Prusa Knowledge Base — Filament material guide
+    url: https://help.prusa3d.com/filament-material-guide
+    checked: "2026-08-08"
+```
+
+**`checked` is a promise, so only add it if you kept it.** It means _you opened
+that page on that date and it still said what this entry says it says_. A
+monthly check reports entries whose sources nobody has looked at lately, and a
+date you did not earn makes that check lie. Leaving it out is not a failing —
+it honestly records that nobody has looked yet.
+
+**`series` and `step`** put an entry in an ordered procedure. Both or neither,
+and no two entries may claim the same step. The steps deliberately span
+categories: calibrating an extruder is `hardware`, pressure advance is
+`materials`, and they are still steps 3 and 5 of the same sequence.
+
+**`videos` is separate from `sources`** because they answer different
+questions. A source is where a claim came from; a video is someone carrying the
+procedure out.
+
+## Pictures and diagrams
+
+Put them in an `images/` folder next to your entry, and link relatively:
+
+```
+content/materials/
+  drying-filament.md
+  images/
+    warped-spool.jpg
+```
+
+```markdown
+![A spool that went oval after drying too hot](images/warped-spool.jpg)
+```
+
+Write a real description in the `![…]` part. It is what someone using a screen
+reader gets instead of the picture, and "image" or "photo" tells them nothing.
+
+- **Allowed:** `.png` `.jpg` `.jpeg` `.webp` `.avif` `.gif` `.svg`. Anything
+  else is ignored rather than published — these files end up served from the
+  site's own domain, so the list is deliberately short.
+- **Keep them small.** Every version of every picture stays in this
+  repository's history forever. Resize a photo before committing it.
+- **Diagrams are best as `.svg`**, which stays sharp at any size. To make one
+  follow the reader's light or dark theme, put a
+  `@media (prefers-color-scheme: dark)` block inside the file — a picture gets
+  no styling from the page around it.
+
 ## What makes a good entry
 
 - **Say where a number came from.** "Prusa's data sheet says 240 °C" is worth
@@ -54,6 +123,9 @@ may know the bit you are missing.
 - The folder matches the category
 - The file is `.md` — `.mdx` is rejected, since the site has no JSX step and
   would skip it in silence
+- `series` and `step` arrive together, and no two entries claim the same step
+- every `/kb/…` link points at an entry that actually exists, so a renamed
+  file cannot quietly leave dead links behind
 
 It does not check whether the advice is _correct_. That is what review is for.
 

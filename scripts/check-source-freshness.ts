@@ -66,7 +66,58 @@ export type EntrySummary = {
   title: string;
   reviewBy?: string;
   sources: SourceRef[];
+  /** Videos the entry names. Dated like sources, and probed like them. */
+  videos: SourceRef[];
+  /** External links in the prose, which rot exactly as readily. */
+  bodyLinks: SourceRef[];
 };
+
+/**
+ * Every external link an entry contains, wherever it lives.
+ *
+ * Deduplicated by URL, because an entry citing a page and also linking to it in
+ * a sentence should be one request and one finding, not two.
+ *
+ * Internal `/kb/…` links are deliberately absent: those are checked by
+ * `npm run validate` on every pull request, where they belong. They need no
+ * network, and a broken one is a 404 the moment it publishes rather than
+ * something to discover a month later.
+ */
+export function externalLinksOf(entry: EntrySummary): SourceRef[] {
+  const seen = new Map<string, SourceRef>();
+
+  for (const link of [...entry.sources, ...entry.videos, ...entry.bodyLinks]) {
+    if (!seen.has(link.url)) seen.set(link.url, link);
+  }
+
+  return [...seen.values()];
+}
+
+/**
+ * Links in the Markdown body, as opposed to the frontmatter.
+ *
+ * Matches `[text](url)` and bare autolinks. Trailing punctuation is trimmed
+ * because a sentence ending "see https://example.com." would otherwise be
+ * probed with the full stop attached and reported as dead.
+ */
+export function bodyLinksIn(markdown: string): SourceRef[] {
+  const found: SourceRef[] = [];
+
+  for (const match of markdown.matchAll(
+    /\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)/g,
+  )) {
+    found.push({ label: match[1] || match[2], url: match[2] });
+  }
+
+  for (const match of markdown.matchAll(/<(https?:\/\/[^>\s]+)>/g)) {
+    found.push({ label: match[1], url: match[1] });
+  }
+
+  return found.map((link) => ({
+    ...link,
+    url: link.url.replace(/[.,;:!?]+$/, ""),
+  }));
+}
 
 export type Verdict = "due" | "unscheduled" | "current";
 
@@ -234,9 +285,8 @@ function markdownPaths(root: string, directory: string): string[] {
 
 export function readEntries(root: string): EntrySummary[] {
   return markdownPaths(root, CONTENT_DIRECTORY).map((path) => {
-    const parsed = frontmatterSchema.safeParse(
-      matter(readFileSync(join(root, path), "utf8")).data,
-    );
+    const file = matter(readFileSync(join(root, path), "utf8"));
+    const parsed = frontmatterSchema.safeParse(file.data);
     if (!parsed.success) {
       // `npm run validate` is what reports bad entries, with a good message.
       // Failing loudly here keeps this from quietly sweeping a subset.
@@ -249,6 +299,8 @@ export function readEntries(root: string): EntrySummary[] {
       title: parsed.data.title,
       reviewBy: parsed.data.reviewBy,
       sources: parsed.data.sources ?? [],
+      videos: parsed.data.videos ?? [],
+      bodyLinks: bodyLinksIn(file.content),
     };
   });
 }
@@ -348,8 +400,8 @@ async function main(argv: string[]): Promise<number> {
   const links: LinkResult[] = [];
   if (probeLinks) {
     for (const entry of entries) {
-      for (const source of entry.sources) {
-        links.push(await probe(source));
+      for (const link of externalLinksOf(entry)) {
+        links.push(await probe(link));
       }
     }
   }
