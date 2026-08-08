@@ -13,6 +13,8 @@ import { describe as group, expect, it, vi } from "vitest";
 
 import {
   assess,
+  externalLinksOf,
+  bodyLinksIn,
   daysBetween,
   describe,
   isRot,
@@ -30,6 +32,8 @@ const entry = (over: Partial<EntrySummary> = {}): EntrySummary => ({
   sources: [
     { label: "Klipper", url: "https://example.com", checked: "2026-08-08" },
   ],
+  videos: [],
+  bodyLinks: [],
   reviewBy: "2027-02-08",
   ...over,
 });
@@ -226,6 +230,63 @@ group("the issue body", () => {
       TODAY,
     );
     expect(body).not.toBe("");
+  });
+});
+
+group("finding the links to probe", () => {
+  it("picks up a Markdown link in the body", () => {
+    expect(
+      bodyLinksIn("See [Prusa](https://help.prusa3d.com/x) for more."),
+    ).toEqual([{ label: "Prusa", url: "https://help.prusa3d.com/x" }]);
+  });
+
+  it("picks up a bare autolink", () => {
+    expect(bodyLinksIn("See <https://example.com/a> too.")).toEqual([
+      { label: "https://example.com/a", url: "https://example.com/a" },
+    ]);
+  });
+
+  // A sentence ending in a URL is common, and the full stop is not part of it.
+  it("trims trailing sentence punctuation off a URL", () => {
+    expect(bodyLinksIn("Read [it](https://example.com/a).")[0].url).toBe(
+      "https://example.com/a",
+    );
+  });
+
+  it("ignores internal links, which validate.ts already checks", () => {
+    expect(
+      bodyLinksIn("See [flow](/kb/materials/flow-rate-calibration)."),
+    ).toEqual([]);
+  });
+
+  it("ignores an image, which is a local file rather than a link", () => {
+    expect(bodyLinksIn("![diagram](images/order.svg)")).toEqual([]);
+  });
+
+  it("combines sources, videos and body links", () => {
+    const links = externalLinksOf(
+      entry({
+        sources: [{ label: "S", url: "https://a.example" }],
+        videos: [{ label: "V", url: "https://b.example" }],
+        bodyLinks: [{ label: "B", url: "https://c.example" }],
+      }),
+    );
+    expect(links.map((link) => link.url)).toEqual([
+      "https://a.example",
+      "https://b.example",
+      "https://c.example",
+    ]);
+  });
+
+  // One request and one finding, not two, when a page is both cited and linked.
+  it("deduplicates a URL that appears in more than one place", () => {
+    const links = externalLinksOf(
+      entry({
+        sources: [{ label: "Cited", url: "https://a.example" }],
+        bodyLinks: [{ label: "Linked", url: "https://a.example" }],
+      }),
+    );
+    expect(links).toHaveLength(1);
   });
 });
 

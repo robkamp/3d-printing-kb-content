@@ -16,6 +16,7 @@ import { describe, expect, it } from "vitest";
 import {
   checkAll,
   checkEntry,
+  checkInternalLinks,
   checkNoDuplicateSteps,
   checkNoMdx,
   type EntryFile,
@@ -320,6 +321,97 @@ describe("the folder and the category have to agree", () => {
     const problems = checkEntry(entry(VALID, "content/filament-settings.md"));
     expect(problems).toHaveLength(1);
     expect(problems[0].message).toContain("content root");
+  });
+});
+
+describe("internal links have to point at an entry that exists", () => {
+  const withBody = (path: string, body: string): EntryFile => ({
+    path,
+    raw: VALID.replace("Body text.", body),
+  });
+
+  const real = withBody("content/materials/filament-settings.md", "Body text.");
+
+  it("accepts a link to an entry that is there", () => {
+    expect(
+      checkInternalLinks([
+        real,
+        withBody(
+          "content/hardware/printer-settings.md",
+          "See [settings](/kb/materials/filament-settings).",
+        ),
+      ]),
+    ).toEqual([]);
+  });
+
+  // The failure this exists for: renaming a file quietly 404s every link to it.
+  it("catches a link to an entry that is not there", () => {
+    const problems = checkInternalLinks([
+      withBody(
+        "content/materials/filament-settings.md",
+        "See [gone](/kb/materials/renamed-away).",
+      ),
+    ]);
+    expect(problems).toHaveLength(1);
+    expect(problems[0].message).toContain("/kb/materials/renamed-away");
+  });
+
+  // The one a human misses, because the page it names really does exist.
+  it("catches the right slug filed under the wrong category", () => {
+    expect(
+      checkInternalLinks([
+        real,
+        withBody(
+          "content/hardware/printer-settings.md",
+          "[wrong folder](/kb/hardware/filament-settings)",
+        ),
+      ]),
+    ).toHaveLength(1);
+  });
+
+  it("reports the line number, so it can be found", () => {
+    const problems = checkInternalLinks([
+      withBody(
+        "content/materials/filament-settings.md",
+        "one\n\ntwo\n\n[bad](/kb/materials/nope)",
+      ),
+    ]);
+    expect(problems[0].message).toMatch(/line \d+/);
+  });
+
+  it("flags every bad link, not just the first", () => {
+    expect(
+      checkInternalLinks([
+        withBody(
+          "content/materials/filament-settings.md",
+          "[a](/kb/materials/nope-one) and [b](/kb/materials/nope-two)",
+        ),
+      ]),
+    ).toHaveLength(2);
+  });
+
+  it("leaves external links alone", () => {
+    expect(
+      checkInternalLinks([
+        withBody(
+          "content/materials/filament-settings.md",
+          "[Prusa](https://help.prusa3d.com/kb/materials/whatever)",
+        ),
+      ]),
+    ).toEqual([]);
+  });
+
+  it("runs as part of checkAll", () => {
+    const problems = checkAll(
+      [
+        withBody(
+          "content/materials/filament-settings.md",
+          "[bad](/kb/materials/nope)",
+        ),
+      ],
+      ["content/materials/filament-settings.md"],
+    );
+    expect(problems.length).toBeGreaterThan(0);
   });
 });
 
