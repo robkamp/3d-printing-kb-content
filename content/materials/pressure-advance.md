@@ -12,12 +12,16 @@ difficulty: intermediate
 sources:
   - label: Klipper — Pressure Advance
     url: https://www.klipper3d.org/Pressure_Advance.html
+    checked: "2026-08-08"
   - label: Ellis' Print Tuning Guide — Pressure Advance / Linear Advance
     url: https://ellis3dp.com/Print-Tuning-Guide/articles/pressure_linear_advance/introduction.html
+    checked: "2026-08-08"
   - label: Bambu Lab Wiki — Flow Dynamics calibration
     url: https://wiki.bambulab.com/en/software/bambu-studio/calibration_pa
+    checked: "2026-08-08"
   - label: OrcaSlicer Wiki — Calibration guide
     url: https://github.com/OrcaSlicer/OrcaSlicer/wiki/calibration_guide
+    checked: "2026-08-08"
 ---
 
 The extruder pushes filament; the nozzle resists. Pressure takes a moment to

@@ -12,12 +12,16 @@ difficulty: intermediate
 sources:
   - label: OrcaSlicer Wiki — Calibration guide
     url: https://github.com/OrcaSlicer/OrcaSlicer/wiki/calibration_guide
+    checked: "2026-08-08"
   - label: Ellis' Print Tuning Guide — Tuning
     url: https://ellis3dp.com/Print-Tuning-Guide/articles/index_tuning.html
+    checked: "2026-08-08"
   - label: OrcaSlicer Wiki — Max volumetric speed calibration
     url: https://www.orcaslicer.com/wiki/calibration/volumetric_speed_calib
+    checked: "2026-08-08"
   - label: Klipper — Pressure Advance
     url: https://www.klipper3d.org/Pressure_Advance.html
+    checked: "2026-08-08"
 ---
 
 The point of a fixed order is that each step depends on the ones before it.

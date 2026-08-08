@@ -54,6 +54,19 @@ export const frontmatterSchema = z.object({
       z.object({
         label: z.string().min(1, "each source needs a label"),
         url: z.url("each source needs a full URL, starting with https://"),
+        /**
+         * When this source was last read and found to still support the entry.
+         *
+         * Optional, because requiring it would invalidate every entry written
+         * before this field existed. A missing `checked` does not mean the
+         * source is stale — it means nobody has recorded looking, which is a
+         * different and equally useful thing for a review sweep to report.
+         */
+        checked: z.iso
+          .date(
+            'checked must be an ISO date in quotes, e.g. "2026-08-08" — the day the source was last confirmed to still say this',
+          )
+          .optional(),
       }),
     )
     .optional(),
