@@ -48,7 +48,8 @@ Before starting:
     E-steps, or rotation distance in Klipper, are a property of the machine and
     are set once. They sit underneath everything here: if they are wrong, flow
     rate gets tuned to hide the error, and then every new material behaves
-    differently for no visible reason. Never use flow to fix bad e-steps.
+    differently for no visible reason. Never use flow to fix bad e-steps. The
+    procedure is in [calibrating the extruder](/kb/hardware/extruder-calibration).
 
 ## 1. Dry the filament first
 
@@ -104,7 +105,9 @@ under-extrusion at the start of the next perimeter.
 
 Sensible starting ranges depend far more on the extruder than on the filament —
 roughly **0.5–2 mm** for direct drive against **4–8 mm** for Bowden, because a
-Bowden tube absorbs much of the movement before it reaches the nozzle.
+Bowden tube absorbs much of the movement before it reaches the nozzle. Why
+published figures disagree so widely is in
+[retraction settings](/kb/hardware/retraction-settings).
 
 ## 6. Maximum volumetric speed
 
