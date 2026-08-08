@@ -9,6 +9,8 @@ tags:
   - moisture
   - troubleshooting
 difficulty: beginner
+series: filament-calibration
+step: 1
 reviewBy: "2027-08-08"
 sources:
   - label: Polymaker Wiki — Wet filament

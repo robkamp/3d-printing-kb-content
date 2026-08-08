@@ -9,6 +9,8 @@ tags:
   - calibration
   - flow
 difficulty: intermediate
+series: filament-calibration
+step: 4
 reviewBy: "2027-02-08"
 sources:
   - label: OrcaSlicer Wiki — Flow rate calibration

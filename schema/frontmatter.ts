@@ -16,7 +16,12 @@
 // example is written that way.
 import { z } from "zod";
 
-import { CATEGORIES, DIFFICULTY_LEVELS, ENTRY_TYPES } from "./taxonomy.js";
+import {
+  CATEGORIES,
+  DIFFICULTY_LEVELS,
+  ENTRY_TYPES,
+  SERIES,
+} from "./taxonomy.js";
 
 const list = (values: readonly string[]) => values.join(", ");
 
@@ -48,6 +53,23 @@ export const frontmatterSchema = z.object({
     .optional(),
   /** Draft entries stay in the repository but generate no page on the site. */
   draft: z.boolean().default(false),
+  /**
+   * An ordered sequence this entry is a step in, and where it falls.
+   *
+   * Both or neither — a `step` with no `series` has nothing to be a step of,
+   * and a `series` with no `step` cannot be placed. That pairing is enforced
+   * in `scripts/validate.ts` rather than here, deliberately: the site calls
+   * `frontmatterSchema.extend()`, which only exists on a plain object schema,
+   * so wrapping this in a `.refine()` would break the site build. Cross-field
+   * rules live with the other cross-cutting checks instead.
+   */
+  series: z
+    .enum(SERIES, { message: `series must be one of: ${list(SERIES)}` })
+    .optional(),
+  step: z
+    .int("step must be a whole number, e.g. 3")
+    .positive("step counts from 1, not 0")
+    .optional(),
   /**
    * When this entry's sources should next be re-read.
    *

@@ -9,6 +9,8 @@ tags:
   - calibration
   - filament
 difficulty: intermediate
+series: filament-calibration
+step: 5
 reviewBy: "2027-02-08"
 sources:
   - label: Klipper — Pressure Advance

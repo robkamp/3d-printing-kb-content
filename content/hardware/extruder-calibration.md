@@ -9,6 +9,8 @@ tags:
   - calibration
   - e-steps
 difficulty: intermediate
+series: filament-calibration
+step: 3
 reviewBy: "2027-08-08"
 sources:
   - label: Ellis' Print Tuning Guide — Extruder calibration
