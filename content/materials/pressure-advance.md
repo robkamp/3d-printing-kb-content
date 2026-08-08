@@ -12,6 +12,10 @@ difficulty: intermediate
 series: filament-calibration
 step: 5
 reviewBy: "2027-02-08"
+videos:
+  - label: "Pressure Advance Calibration: Ellis' Print Tuning Guide"
+    url: https://www.youtube.com/watch?v=BzB4Y6QzT3M
+    checked: "2026-08-08"
 sources:
   - label: Klipper — Pressure Advance
     url: https://www.klipper3d.org/Pressure_Advance.html

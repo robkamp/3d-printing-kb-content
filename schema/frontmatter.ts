@@ -85,6 +85,33 @@ export const frontmatterSchema = z.object({
   reviewBy: z.iso
     .date('reviewBy must be an ISO date in quotes, e.g. "2027-02-08"')
     .optional(),
+  /**
+   * Videos showing the procedure being carried out.
+   *
+   * Structured data rather than a link in the prose, and deliberately so. The
+   * Markdown pipeline drops raw HTML, which means an entry cannot embed a
+   * player itself — and that restriction is load-bearing rather than annoying,
+   * because entries will soon arrive from strangers via the contribution form.
+   * Naming the video here lets the *site* decide how to present it, from a URL
+   * the contract has already validated, without the entry ever supplying
+   * markup.
+   *
+   * Separate from `sources` because they answer different questions. A source
+   * is where a claim came from; a video is someone doing the thing. An entry
+   * can reasonably have one, both, or neither.
+   */
+  videos: z
+    .array(
+      z.object({
+        label: z.string().min(1, "each video needs a label"),
+        url: z.url("each video needs a full URL, starting with https://"),
+        /** Same meaning as on a source: when it was last confirmed to exist. */
+        checked: z.iso
+          .date('checked must be an ISO date in quotes, e.g. "2026-08-08"')
+          .optional(),
+      }),
+    )
+    .optional(),
   /** Provenance, so advice can be traced back rather than taken on faith. */
   sources: z
     .array(

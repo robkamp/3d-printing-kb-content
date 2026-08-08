@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" width="720" height="300" role="img" aria-labelledby="title desc">
+  <title id="title">What each calibration step depends on</title>
+  <desc id="desc">A chain running from a dry spool through extruder calibration, flow rate, pressure advance, retraction and maximum volumetric speed. Extruder calibration belongs to the machine and is set once; every step after it belongs to the filament and is measured per spool.</desc>
+
+  <!--
+    Styled inside the file rather than by the page, because this is embedded
+    with <img> and gets no CSS from the document. The media query still applies,
+    so the diagram follows the reader's theme.
+  -->
+  <style>
+    .box  { fill: #ffffff; stroke: #d4d4d8; stroke-width: 1.5; }
+    .machine { fill: #f4f4f5; stroke: #a1a1aa; stroke-dasharray: 5 3; }
+    .label { fill: #18181b; font: 600 14px ui-sans-serif, system-ui, sans-serif; }
+    .sub   { fill: #71717a; font: 400 11px ui-sans-serif, system-ui, sans-serif; }
+    .note  { fill: #71717a; font: 400 12px ui-sans-serif, system-ui, sans-serif; }
+    .arrow { stroke: #a1a1aa; stroke-width: 1.5; fill: none; }
+    .head  { fill: #a1a1aa; }
+
+    @media (prefers-color-scheme: dark) {
+      .box  { fill: #18181b; stroke: #3f3f46; }
+      .machine { fill: #27272a; stroke: #52525b; }
+      .label { fill: #fafafa; }
+      .sub, .note { fill: #a1a1aa; }
+      .arrow { stroke: #52525b; }
+      .head  { fill: #52525b; }
+    }
+  </style>
+
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" class="head" />
+    </marker>
+  </defs>
+
+  <!-- Row 1: the prerequisite -->
+  <rect x="20" y="30" width="150" height="54" rx="8" class="box" />
+  <text x="95" y="54" text-anchor="middle" class="label">Dry filament</text>
+  <text x="95" y="71" text-anchor="middle" class="sub">or you measure water</text>
+
+  <rect x="210" y="30" width="170" height="54" rx="8" class="box machine" />
+  <text x="295" y="54" text-anchor="middle" class="label">Extruder / e-steps</text>
+  <text x="295" y="71" text-anchor="middle" class="sub">the machine — set once</text>
+
+  <path d="M 172 57 H 206" class="arrow" marker-end="url(#a)" />
+
+  <!-- Row 2: the per-spool chain -->
+  <rect x="20" y="140" width="150" height="54" rx="8" class="box" />
+  <text x="95" y="164" text-anchor="middle" class="label">Flow rate</text>
+  <text x="95" y="181" text-anchor="middle" class="sub">how much comes out</text>
+
+  <rect x="210" y="140" width="170" height="54" rx="8" class="box" />
+  <text x="295" y="164" text-anchor="middle" class="label">Pressure advance</text>
+  <text x="295" y="181" text-anchor="middle" class="sub">where it lands</text>
+
+  <rect x="420" y="140" width="130" height="54" rx="8" class="box" />
+  <text x="485" y="164" text-anchor="middle" class="label">Retraction</text>
+  <text x="485" y="181" text-anchor="middle" class="sub">travel moves</text>
+
+  <rect x="590" y="140" width="110" height="54" rx="8" class="box" />
+  <text x="645" y="158" text-anchor="middle" class="label">Max flow</text>
+  <text x="645" y="175" text-anchor="middle" class="sub">mm³/s</text>
+  <text x="645" y="189" text-anchor="middle" class="sub">the real speed cap</text>
+
+  <path d="M 172 167 H 206" class="arrow" marker-end="url(#a)" />
+  <path d="M 382 167 H 416" class="arrow" marker-end="url(#a)" />
+  <path d="M 552 167 H 586" class="arrow" marker-end="url(#a)" />
+
+  <!-- The step down from prerequisite to the per-spool chain -->
+  <path d="M 295 86 V 112 H 95 V 136" class="arrow" marker-end="url(#a)" />
+
+  <text x="20" y="238" class="note">Each step assumes the ones before it are already right.</text>
+  <text x="20" y="258" class="note">Everything on the bottom row is measured per spool. The dashed box is the machine, and does not move with filament.</text>
+  <text x="20" y="278" class="note">Get the order wrong and the measurement still succeeds — it just measures the earlier mistake too.</text>
+</svg>

@@ -183,6 +183,50 @@ describe("field formats", () => {
   });
 });
 
+describe("videos", () => {
+  const withVideos = (lines: string) =>
+    entry(withLine("draft: false", `draft: false\n${lines}`));
+
+  it("accepts a video with a label and a URL", () => {
+    expect(
+      checkEntry(
+        withVideos(
+          "videos:\n  - label: Flow kalibreren\n    url: https://www.youtube.com/watch?v=abc",
+        ),
+      ),
+    ).toEqual([]);
+  });
+
+  it("accepts a video carrying a checked date", () => {
+    expect(
+      checkEntry(
+        withVideos(
+          'videos:\n  - label: Flow kalibreren\n    url: https://youtu.be/abc\n    checked: "2026-08-08"',
+        ),
+      ),
+    ).toEqual([]);
+  });
+
+  it("rejects a video with no label", () => {
+    const problems = checkEntry(
+      withVideos("videos:\n  - url: https://youtu.be/abc"),
+    );
+    expect(problems.length).toBeGreaterThan(0);
+    expect(problems[0].message).toContain("label");
+  });
+
+  it("rejects a video without a full URL", () => {
+    const problems = checkEntry(
+      withVideos("videos:\n  - label: Flow\n    url: youtu.be/abc"),
+    );
+    expect(problems[0].message).toContain("URL");
+  });
+
+  it("accepts an entry with no videos at all, since it is optional", () => {
+    expect(checkEntry(entry(VALID))).toEqual([]);
+  });
+});
+
 describe("series and step", () => {
   const withSeries = (lines: string) =>
     entry(withLine("draft: false", `draft: false\n${lines}`));
