@@ -75,6 +75,10 @@ For a 0.4 mm nozzle set to a 0.45 mm extrusion width, expect to land between
 > the smoothest top surface. It is quicker, and the common complaint about it is
 > that every tile looks identical. Calipers are the tie-breaker.
 
+Both methods, the arithmetic, and what an implausible result says about the
+printer rather than the spool are in
+[calibrating flow rate](/kb/materials/flow-rate-calibration).
+
 ## 4. Pressure advance
 
 Corners bulge and the line after a corner starts thin, because pressure in the
@@ -90,7 +94,8 @@ is, the value ranges to expect, and the caveats are in
 > advance **before** the extrusion multiplier; OrcaSlicer's own guide puts
 > maximum volumetric speed second and flow rate fourth. The order here changes
 > one variable at a time and settles how much material is laid down before
-> settling where it goes.
+> settling where it goes. Both cases are argued out in
+> [why calibration has an order](/kb/slicing/calibration-order).
 
 ## 5. Retraction
 
@@ -110,6 +115,10 @@ not the speed numbers in the profile.
 Step the test from **5 mm³/s to 20 mm³/s** and watch for where quality falls
 apart. Then back the result off by **10–20%**: the point where defects appear is
 the limit, not the setting.
+
+Both the slicer test and the extrude-into-the-air method, plus why the number
+has to be reduced rather than used as measured, are in
+[finding maximum volumetric speed](/kb/materials/max-volumetric-speed).
 
 ## Record the result
 
