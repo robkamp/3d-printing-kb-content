@@ -86,7 +86,7 @@ filament, then confirm it by testing rather than assuming.
 > range, the filament is usually damp rather than mis-tuned. Dry it before
 > spending an evening on a temperature tower.
 
-A published range like `200–220 °C` is not indecision. Hotter generally means
+A published range like `185–235 °C` is not indecision. Hotter generally means
 better layer adhesion and worse overhang and stringing behaviour; cooler is the
 reverse. The right value within the range depends on your printer, the part,
 and how fast you are printing it — which is what

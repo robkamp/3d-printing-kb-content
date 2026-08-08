@@ -44,7 +44,7 @@ These are the ones where order is not a matter of taste:
 | Anything dimensional | The first layer is good          | You chase squish as if it were shrinkage           |
 
 The common shape: a **mechanical** property underneath a **material**
-property underneath a **placement** property. E-steps belong to the machine
+property underneath a **placement** property. [E-steps](/kb/hardware/extruder-calibration) belong to the machine
 and are set once; flow belongs to the spool; pressure advance belongs to the
 spool and moves with speed.
 
