@@ -153,6 +153,21 @@ describe("field formats", () => {
     expect(problems).toEqual([]);
   });
 
+  it("accepts an entry carrying a reviewBy date", () => {
+    const problems = checkEntry(
+      entry(withLine("draft: false", 'draft: false\nreviewBy: "2027-02-08"')),
+    );
+    expect(problems).toEqual([]);
+  });
+
+  it("rejects a reviewBy that is not an ISO date", () => {
+    const problems = checkEntry(
+      entry(withLine("draft: false", "draft: false\nreviewBy: February 2027")),
+    );
+    expect(problems.length).toBeGreaterThan(0);
+    expect(problems[0].message).toContain("reviewBy");
+  });
+
   it("rejects a checked date that is not an ISO date", () => {
     const problems = checkEntry(
       entry(

@@ -9,6 +9,7 @@ tags:
   - calibration
   - filament
 difficulty: intermediate
+reviewBy: "2027-02-08"
 sources:
   - label: Klipper — Pressure Advance
     url: https://www.klipper3d.org/Pressure_Advance.html

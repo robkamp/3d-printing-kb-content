@@ -9,6 +9,7 @@ tags:
   - moisture
   - troubleshooting
 difficulty: beginner
+reviewBy: "2027-08-08"
 sources:
   - label: Polymaker Wiki — Wet filament
     url: https://wiki.polymaker.com/printing-tips/common-printing-issues/wet-filament

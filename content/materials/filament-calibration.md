@@ -9,6 +9,7 @@ tags:
   - filament
   - calibration
 difficulty: intermediate
+reviewBy: "2027-02-08"
 sources:
   - label: OrcaSlicer Wiki — Calibration guide
     url: https://github.com/OrcaSlicer/OrcaSlicer/wiki/calibration_guide

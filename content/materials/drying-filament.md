@@ -9,6 +9,7 @@ tags:
   - drying
   - moisture
 difficulty: beginner
+reviewBy: "2027-08-08"
 sources:
   - label: Bambu Lab Wiki — Drying function (AMS 2 Pro and AMS HT)
     url: https://wiki.bambulab.com/en/ams-2-pro/manual/drying-function

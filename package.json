@@ -10,7 +10,8 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "sweep": "tsx scripts/check-source-freshness.ts"
   },
   "dependencies": {
     "zod": "^4.4.3"

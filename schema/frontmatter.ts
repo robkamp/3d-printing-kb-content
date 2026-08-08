@@ -48,6 +48,21 @@ export const frontmatterSchema = z.object({
     .optional(),
   /** Draft entries stay in the repository but generate no page on the site. */
   draft: z.boolean().default(false),
+  /**
+   * When this entry's sources should next be re-read.
+   *
+   * Stored rather than computed from `checked`, because entries do not all go
+   * stale at the same rate. Slicer documentation moves in months; how moisture
+   * behaves in a hotend does not. A single global interval would either nag
+   * about the physics or let the software drift.
+   *
+   * Not rendered on the site — it is a note to the maintainer about upkeep,
+   * not information a reader needs. The `checked` dates on each source are the
+   * reader-facing half of this.
+   */
+  reviewBy: z.iso
+    .date('reviewBy must be an ISO date in quotes, e.g. "2027-02-08"')
+    .optional(),
   /** Provenance, so advice can be traced back rather than taken on faith. */
   sources: z
     .array(
