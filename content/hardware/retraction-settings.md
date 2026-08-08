@@ -9,6 +9,8 @@ tags:
   - stringing
   - extruder
 difficulty: intermediate
+series: filament-calibration
+step: 6
 reviewBy: "2027-08-08"
 sources:
   - label: Ellis' Print Tuning Guide — Retraction

@@ -37,10 +37,36 @@ export const DIFFICULTY_LEVELS = [
   "advanced",
 ] as const;
 
+/**
+ * Ordered sequences an entry can belong to — a **third** axis, independent of
+ * both the ones above.
+ *
+ * Some entries are steps in a procedure that must be followed in order, and
+ * neither existing axis can say so. `category` cannot: the steps deliberately
+ * span subjects, since calibrating an extruder is hardware and pressure
+ * advance is materials. Forcing them into one category to express a sequence
+ * would break the subject axis in order to fix the ordering one. `type` cannot
+ * either — it only says whether an entry is reference or workflow.
+ *
+ * So a series is orthogonal to both, for exactly the reason `category` and
+ * `type` are orthogonal to each other: an entry keeps its subject and its kind
+ * and *additionally* says where it falls in a sequence.
+ *
+ * Deliberately a closed list rather than a free string. Two entries spelling
+ * the same series differently would silently produce two half-sequences with
+ * nothing to report it.
+ */
+export const SERIES = ["filament-calibration"] as const;
+
 export type Category = (typeof CATEGORIES)[number];
 export type EntryType = (typeof ENTRY_TYPES)[number];
 export type DifficultyLevel = (typeof DIFFICULTY_LEVELS)[number];
+export type Series = (typeof SERIES)[number];
 
 export function isCategory(value: string): value is Category {
   return (CATEGORIES as readonly string[]).includes(value);
+}
+
+export function isSeries(value: string): value is Series {
+  return (SERIES as readonly string[]).includes(value);
 }

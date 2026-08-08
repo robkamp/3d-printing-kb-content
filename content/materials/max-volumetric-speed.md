@@ -9,6 +9,8 @@ tags:
   - calibration
   - speed
 difficulty: intermediate
+series: filament-calibration
+step: 7
 reviewBy: "2027-02-08"
 sources:
   - label: OrcaSlicer Wiki — Max volumetric speed calibration

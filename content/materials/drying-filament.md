@@ -9,6 +9,8 @@ tags:
   - drying
   - moisture
 difficulty: beginner
+series: filament-calibration
+step: 2
 reviewBy: "2027-08-08"
 sources:
   - label: Bambu Lab Wiki — Drying function (AMS 2 Pro and AMS HT)

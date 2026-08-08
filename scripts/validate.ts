@@ -83,6 +83,96 @@ export function checkCategoryMatchesFolder(
   ];
 }
 
+/**
+ * `series` and `step` have to arrive together.
+ *
+ * Enforced here rather than in the schema because the site calls
+ * `frontmatterSchema.extend()`, which only exists on a plain object schema — a
+ * `.refine()` would turn it into an effects schema and break the site build.
+ */
+export function checkSeriesPairing(
+  path: string,
+  series: string | undefined,
+  step: number | undefined,
+): Problem[] {
+  if (series !== undefined && step === undefined) {
+    return [
+      {
+        file: path,
+        message:
+          `series is "${series}" but there is no step, so the entry cannot be ` +
+          `placed in the sequence. Add a step, counting from 1.`,
+      },
+    ];
+  }
+
+  if (step !== undefined && series === undefined) {
+    return [
+      {
+        file: path,
+        message:
+          `step is ${step} but there is no series, so there is nothing for it ` +
+          `to be a step of. Add a series, or remove the step.`,
+      },
+    ];
+  }
+
+  return [];
+}
+
+/**
+ * Two entries claiming the same position in the same sequence.
+ *
+ * An error rather than a silent tie-break. The site has to order them somehow,
+ * so a duplicate step does not look broken — it quietly puts a step in the
+ * wrong place, on a page whose entire purpose is being in the right order.
+ */
+export function checkNoDuplicateSteps(
+  entries: Array<{ path: string; series?: string; step?: number }>,
+): Problem[] {
+  const seen = new Map<string, string>();
+  const problems: Problem[] = [];
+
+  for (const entry of entries) {
+    if (entry.series === undefined || entry.step === undefined) continue;
+
+    const key = `${entry.series}#${entry.step}`;
+    const first = seen.get(key);
+
+    if (first === undefined) {
+      seen.set(key, entry.path);
+      continue;
+    }
+
+    problems.push({
+      file: entry.path,
+      message:
+        `step ${entry.step} of "${entry.series}" is already taken by ` +
+        `${first}. Every step in a series has to be unique — renumber one of ` +
+        `them.`,
+    });
+  }
+
+  return problems;
+}
+
+/** Frontmatter needed for the cross-entry checks, when it parsed cleanly. */
+function seriesOf(
+  file: EntryFile,
+): { path: string; series?: string; step?: number } | undefined {
+  try {
+    const parsed = frontmatterSchema.safeParse(matter(file.raw).data);
+    if (!parsed.success) return undefined;
+    return {
+      path: file.path,
+      series: parsed.data.series,
+      step: parsed.data.step,
+    };
+  } catch {
+    return undefined;
+  }
+}
+
 export function checkEntry(file: EntryFile): Problem[] {
   let data: unknown;
 
@@ -112,13 +202,23 @@ export function checkEntry(file: EntryFile): Problem[] {
     }));
   }
 
-  return checkCategoryMatchesFolder(file.path, result.data.category);
+  return [
+    ...checkCategoryMatchesFolder(file.path, result.data.category),
+    ...checkSeriesPairing(file.path, result.data.series, result.data.step),
+  ];
 }
 
 export function checkAll(files: EntryFile[], allPaths: string[]): Problem[] {
   return [
     ...checkNoMdx(allPaths),
     ...files.flatMap((file) => checkEntry(file)),
+    // Cross-entry, so it cannot live in checkEntry: a duplicate step is only
+    // visible when the whole set is in view.
+    ...checkNoDuplicateSteps(
+      files
+        .map((file) => seriesOf(file))
+        .filter((entry) => entry !== undefined),
+    ),
   ];
 }
 

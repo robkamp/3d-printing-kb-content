@@ -16,6 +16,7 @@ import { describe, expect, it } from "vitest";
 import {
   checkAll,
   checkEntry,
+  checkNoDuplicateSteps,
   checkNoMdx,
   type EntryFile,
 } from "./validate.js";
@@ -179,6 +180,130 @@ describe("field formats", () => {
     );
     expect(problems.length).toBeGreaterThan(0);
     expect(problems[0].message).toContain("checked");
+  });
+});
+
+describe("videos", () => {
+  const withVideos = (lines: string) =>
+    entry(withLine("draft: false", `draft: false\n${lines}`));
+
+  it("accepts a video with a label and a URL", () => {
+    expect(
+      checkEntry(
+        withVideos(
+          "videos:\n  - label: Flow kalibreren\n    url: https://www.youtube.com/watch?v=abc",
+        ),
+      ),
+    ).toEqual([]);
+  });
+
+  it("accepts a video carrying a checked date", () => {
+    expect(
+      checkEntry(
+        withVideos(
+          'videos:\n  - label: Flow kalibreren\n    url: https://youtu.be/abc\n    checked: "2026-08-08"',
+        ),
+      ),
+    ).toEqual([]);
+  });
+
+  it("rejects a video with no label", () => {
+    const problems = checkEntry(
+      withVideos("videos:\n  - url: https://youtu.be/abc"),
+    );
+    expect(problems.length).toBeGreaterThan(0);
+    expect(problems[0].message).toContain("label");
+  });
+
+  it("rejects a video without a full URL", () => {
+    const problems = checkEntry(
+      withVideos("videos:\n  - label: Flow\n    url: youtu.be/abc"),
+    );
+    expect(problems[0].message).toContain("URL");
+  });
+
+  it("accepts an entry with no videos at all, since it is optional", () => {
+    expect(checkEntry(entry(VALID))).toEqual([]);
+  });
+});
+
+describe("series and step", () => {
+  const withSeries = (lines: string) =>
+    entry(withLine("draft: false", `draft: false\n${lines}`));
+
+  it("accepts an entry with both", () => {
+    expect(
+      checkEntry(withSeries("series: filament-calibration\nstep: 3")),
+    ).toEqual([]);
+  });
+
+  it("accepts an entry with neither, since both are optional", () => {
+    expect(checkEntry(entry(VALID))).toEqual([]);
+  });
+
+  it("rejects a series with no step — it cannot be placed", () => {
+    const problems = checkEntry(withSeries("series: filament-calibration"));
+    expect(problems.length).toBeGreaterThan(0);
+    expect(problems[0].message).toContain("no step");
+  });
+
+  it("rejects a step with no series — nothing to be a step of", () => {
+    const problems = checkEntry(withSeries("step: 3"));
+    expect(problems.length).toBeGreaterThan(0);
+    expect(problems[0].message).toContain("no series");
+  });
+
+  it("rejects an unknown series and lists the allowed ones", () => {
+    const problems = checkEntry(withSeries("series: made-up\nstep: 1"));
+    expect(problems[0].message).toContain("filament-calibration");
+  });
+
+  it("rejects step zero, since steps count from 1", () => {
+    const problems = checkEntry(
+      withSeries("series: filament-calibration\nstep: 0"),
+    );
+    expect(problems.length).toBeGreaterThan(0);
+  });
+
+  it("rejects a fractional step", () => {
+    const problems = checkEntry(
+      withSeries("series: filament-calibration\nstep: 1.5"),
+    );
+    expect(problems.length).toBeGreaterThan(0);
+  });
+});
+
+describe("two entries cannot claim the same step", () => {
+  const at = (path: string, step: number) => ({
+    path,
+    series: "filament-calibration",
+    step,
+  });
+
+  it("passes when every step is unique", () => {
+    expect(checkNoDuplicateSteps([at("a.md", 1), at("b.md", 2)])).toEqual([]);
+  });
+
+  it("reports a collision, naming both files", () => {
+    const problems = checkNoDuplicateSteps([at("a.md", 1), at("b.md", 1)]);
+    expect(problems).toHaveLength(1);
+    expect(problems[0].file).toBe("b.md");
+    expect(problems[0].message).toContain("a.md");
+  });
+
+  it("allows the same step number in different series", () => {
+    expect(
+      checkNoDuplicateSteps([
+        { path: "a.md", series: "filament-calibration", step: 1 },
+        { path: "b.md", series: "something-else", step: 1 },
+      ]),
+    ).toEqual([]);
+  });
+
+  it("ignores entries that are not in a series", () => {
+    expect(checkNoDuplicateSteps([{ path: "a.md" }, { path: "b.md" }])).toEqual(
+      [],
+    );
   });
 });
 
