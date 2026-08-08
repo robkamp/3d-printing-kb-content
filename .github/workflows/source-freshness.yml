@@ -1,0 +1,88 @@
+# Monthly sweep: is any entry due to have its sources re-read?
+#
+# An entry cites sources so its advice can be traced rather than believed. That
+# only stays true if somebody occasionally re-reads them, and nothing in this
+# repository produces a signal when a wiki gets restructured or a manufacturer
+# revises a temperature. The entry goes on looking exactly as authoritative as
+# the day it was written.
+#
+# Same shape as the site repository's blocked-upgrades check, and for the same
+# reason: turning "should I re-check this" from something someone has to
+# remember to wonder about into something a schedule answers.
+#
+# Never fails for "an entry is due" — that is the normal state and the whole
+# point. It fails only if the sweep itself is broken, because a check that
+# silently stops working is worse than one that is loudly absent.
+name: Source freshness
+
+on:
+  schedule:
+    # 09:00 UTC on the 1st. Monthly rather than weekly because review cadences
+    # are measured in months, and the sweep looks 14 days ahead — so a monthly
+    # run still catches every entry before its date rather than after it.
+    #
+    # Scheduled workflows only run on the default branch, so this does nothing
+    # until merged.
+    - cron: "0 9 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  sweep:
+    # Pinned rather than ubuntu-latest, so the same commit keeps behaving the
+    # same way.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          # Node 22 is Active LTS, matching validate.yml. Node 20 reached end
+          # of life on 2026-04-30.
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      # First, same as in validate.yml. The date arithmetic and the "is this
+      # rot or a bot block" rule are exactly the parts that can be quietly
+      # wrong, and a sweep that reports "nothing due" every month looks
+      # identical to one that works. Check the check before trusting it.
+      - name: Test the sweep
+        run: npm test
+
+      - name: Sweep
+        run: npm run sweep -- --probe-links
+
+      # Empty when there is nothing to say, which is the signal to stay quiet.
+      - name: Build the issue body
+        run: npm run --silent sweep -- --issue-body > issue-body.md
+
+      - name: Open an issue if anything needs re-reading
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          if [ ! -s issue-body.md ]; then
+            echo "Nothing due, and no dead links. Staying quiet."
+            exit 0
+          fi
+
+          title="Sources due for review"
+
+          # Don't open a second one every month while the first is still open.
+          # The body of an existing issue is deliberately not updated — editing
+          # it under someone mid-review is worse than leaving it slightly stale.
+          existing=$(gh issue list --state open --search "$title in:title" \
+                      --json number -q '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            echo "Issue #$existing is already open."
+            exit 0
+          fi
+
+          gh issue create --title "$title" --body-file issue-body.md
+          echo "Opened an issue."

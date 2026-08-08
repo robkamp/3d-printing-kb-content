@@ -136,6 +136,50 @@ describe("field formats", () => {
     );
     expect(problems.length).toBeGreaterThan(0);
   });
+
+  it("accepts a source with no checked date, since it is optional", () => {
+    expect(checkEntry(entry(VALID))).toEqual([]);
+  });
+
+  it("accepts a source carrying a checked date", () => {
+    const problems = checkEntry(
+      entry(
+        withLine(
+          "    url: https://help.prusa3d.com/",
+          '    url: https://help.prusa3d.com/\n    checked: "2026-08-08"',
+        ),
+      ),
+    );
+    expect(problems).toEqual([]);
+  });
+
+  it("accepts an entry carrying a reviewBy date", () => {
+    const problems = checkEntry(
+      entry(withLine("draft: false", 'draft: false\nreviewBy: "2027-02-08"')),
+    );
+    expect(problems).toEqual([]);
+  });
+
+  it("rejects a reviewBy that is not an ISO date", () => {
+    const problems = checkEntry(
+      entry(withLine("draft: false", "draft: false\nreviewBy: February 2027")),
+    );
+    expect(problems.length).toBeGreaterThan(0);
+    expect(problems[0].message).toContain("reviewBy");
+  });
+
+  it("rejects a checked date that is not an ISO date", () => {
+    const problems = checkEntry(
+      entry(
+        withLine(
+          "    url: https://help.prusa3d.com/",
+          "    url: https://help.prusa3d.com/\n    checked: 8 August 2026",
+        ),
+      ),
+    );
+    expect(problems.length).toBeGreaterThan(0);
+    expect(problems[0].message).toContain("checked");
+  });
 });
 
 describe("the folder and the category have to agree", () => {

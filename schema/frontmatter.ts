@@ -48,12 +48,40 @@ export const frontmatterSchema = z.object({
     .optional(),
   /** Draft entries stay in the repository but generate no page on the site. */
   draft: z.boolean().default(false),
+  /**
+   * When this entry's sources should next be re-read.
+   *
+   * Stored rather than computed from `checked`, because entries do not all go
+   * stale at the same rate. Slicer documentation moves in months; how moisture
+   * behaves in a hotend does not. A single global interval would either nag
+   * about the physics or let the software drift.
+   *
+   * Not rendered on the site — it is a note to the maintainer about upkeep,
+   * not information a reader needs. The `checked` dates on each source are the
+   * reader-facing half of this.
+   */
+  reviewBy: z.iso
+    .date('reviewBy must be an ISO date in quotes, e.g. "2027-02-08"')
+    .optional(),
   /** Provenance, so advice can be traced back rather than taken on faith. */
   sources: z
     .array(
       z.object({
         label: z.string().min(1, "each source needs a label"),
         url: z.url("each source needs a full URL, starting with https://"),
+        /**
+         * When this source was last read and found to still support the entry.
+         *
+         * Optional, because requiring it would invalidate every entry written
+         * before this field existed. A missing `checked` does not mean the
+         * source is stale — it means nobody has recorded looking, which is a
+         * different and equally useful thing for a review sweep to report.
+         */
+        checked: z.iso
+          .date(
+            'checked must be an ISO date in quotes, e.g. "2026-08-08" — the day the source was last confirmed to still say this',
+          )
+          .optional(),
       }),
     )
     .optional(),
