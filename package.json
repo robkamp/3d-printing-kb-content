@@ -14,7 +14,7 @@
     "sweep": "tsx scripts/check-source-freshness.ts"
   },
   "dependencies": {
-    "zod": "^4.4.3"
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@types/node": "^26.1.2",
