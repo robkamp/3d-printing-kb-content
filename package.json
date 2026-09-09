@@ -14,13 +14,13 @@
     "sweep": "tsx scripts/check-source-freshness.ts"
   },
   "dependencies": {
-    "zod": "^4.4.3"
+    "zod": "^4.5.4"
   },
   "devDependencies": {
-    "@types/node": "^26.1.2",
+    "@types/node": "^26.4.1",
     "gray-matter": "^4.0.3",
     "prettier": "^3.9.6",
-    "tsx": "^4.20.6",
+    "tsx": "^4.23.13",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   }
